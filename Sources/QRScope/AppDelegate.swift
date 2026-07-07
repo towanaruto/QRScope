@@ -13,6 +13,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 連打時に古い検出結果を破棄するための世代カウンタ
     private var clickGeneration = 0
 
+    /// 権限案内チップを出しすぎないためのスロットル
+    private var lastPermissionPromptAt: Date = .distantPast
+
     var detectionEnabled: Bool {
         get { UserDefaults.standard.object(forKey: "detectionEnabled") as? Bool ?? true }
         set {
@@ -35,16 +38,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         monitor.start()
 
-        if !CGPreflightScreenCaptureAccess() {
+        let hasAccess = CGPreflightScreenCaptureAccess()
+        NSLog("QRScope: screen capture access = \(hasAccess)")
+        writeDiagnostics(hasAccess: hasAccess)
+        if !hasAccess {
             CGRequestScreenCaptureAccess()
         }
+    }
+
+    /// 起動時の権限状態を Application Support に記録する(トラブルシュート用)
+    private func writeDiagnostics(hasAccess: Bool) {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("QRScope", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let text = "launchedAt=\(Date())\nscreenCaptureAccess=\(hasAccess)\n"
+        try? text.write(to: dir.appendingPathComponent("diagnostics.txt"), atomically: true, encoding: .utf8)
     }
 
     // MARK: - 右クリック検出
 
     private func handleRightClick(at point: CGPoint) {
         overlay.hide()
-        guard detectionEnabled, CGPreflightScreenCaptureAccess() else { return }
+        guard detectionEnabled else { return }
+        guard CGPreflightScreenCaptureAccess() else {
+            // 権限が無いと検出できない。黙って無反応だと原因が分からないので案内する。
+            presentPermissionPromptIfNeeded(near: point)
+            return
+        }
 
         clickGeneration += 1
         let generation = clickGeneration
@@ -134,6 +154,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self.overlay.hide()
             }
         )
+        overlay.show(view, near: point)
+    }
+
+    private func presentPermissionPromptIfNeeded(near point: CGPoint) {
+        guard Date().timeIntervalSince(lastPermissionPromptAt) > 8 else { return }
+        lastPermissionPromptAt = Date()
+        let view = PermissionPromptView(onOpenSettings: {
+            let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
+            NSWorkspace.shared.open(url)
+        })
         overlay.show(view, near: point)
     }
 }

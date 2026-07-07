@@ -32,10 +32,10 @@ final class OverlayController {
         panel.contentView = hosting
 
         // 重要: isFloatingPanel = true はレベルを floating(3) に戻してしまうため、
-        // レベル設定は必ずパネル構成の最後に行う。コンテキストメニューは
-        // メニュートラッキング中 screenSaver レベルでも隠れることがあるので、
-        // メニューより確実に上へ出すシールドウィンドウレベルを使う。
-        panel.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
+        // レベル設定は必ずパネル構成の最後に行う。screenSaver(1000)は
+        // コンテキストメニュー(popUpMenu=101)より上なので、これでメニューに
+        // 隠れなくなる。
+        panel.level = .screenSaver
 
         // コンテキストメニューはカーソルから下方向に開くため、既定でカーソルの
         // すぐ上に出す。上側の余白が足りなければ下側へフリップする。
