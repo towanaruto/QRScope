@@ -25,17 +25,27 @@ final class OverlayController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.level = .screenSaver  // コンテキストメニューより上に表示
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = true
         panel.hidesOnDeactivate = false
         panel.contentView = hosting
 
-        // コンテキストメニューはカーソルの右下に出るため、右上寄りに配置して重なりを避ける
-        var origin = CGPoint(x: point.x + 14, y: point.y + 12)
+        // 重要: isFloatingPanel = true はレベルを floating(3) に戻してしまうため、
+        // レベル設定は必ずパネル構成の最後に行う。コンテキストメニューは
+        // メニュートラッキング中 screenSaver レベルでも隠れることがあるので、
+        // メニューより確実に上へ出すシールドウィンドウレベルを使う。
+        panel.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
+
+        // コンテキストメニューはカーソルから下方向に開くため、既定でカーソルの
+        // すぐ上に出す。上側の余白が足りなければ下側へフリップする。
+        let gap: CGFloat = 10
+        var origin = CGPoint(x: point.x + 12, y: point.y + gap)
         if let screen = NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) }) ?? NSScreen.main {
             let visible = screen.visibleFrame
+            if origin.y + size.height > visible.maxY - 8 {
+                origin.y = point.y - gap - size.height  // 上に収まらないので下側へ
+            }
             origin.x = max(visible.minX + 8, min(origin.x, visible.maxX - size.width - 8))
             origin.y = max(visible.minY + 8, min(origin.y, visible.maxY - size.height - 8))
         }
