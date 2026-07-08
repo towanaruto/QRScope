@@ -38,6 +38,23 @@ final class HistoryStore: ObservableObject {
         load()
     }
 
+    /// ドキュメント用スクリーンショットのためのサンプルデータ(ディスクに触れない)
+    init(demo: Bool) {
+        guard demo else { load(); return }
+        let now = Date()
+        items = [
+            HistoryItem(id: UUID(), payload: "https://github.com/towanaruto/QRScope",
+                        date: now.addingTimeInterval(-120), source: HistoryItem.sourceRightClick,
+                        openedURL: "https://github.com/towanaruto/QRScope"),
+            HistoryItem(id: UUID(), payload: "https://developer.apple.com/documentation/vision",
+                        date: now.addingTimeInterval(-4000), source: HistoryItem.sourceRightClick,
+                        openedURL: "https://developer.apple.com/documentation/vision"),
+            HistoryItem(id: UUID(), payload: "WIFI:S:CafeGuest;T:WPA;P:espresso;;",
+                        date: now.addingTimeInterval(-90000), source: HistoryItem.sourceFullScan,
+                        openedURL: nil),
+        ]
+    }
+
     func add(payload: String, source: String, openedURL: URL?) {
         // 同じQRを続けて操作したときの重複を防ぐ
         if let latest = items.first, latest.payload == payload,

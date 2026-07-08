@@ -6,6 +6,8 @@ QRScope is a macOS menu bar app. Right-click on a QR code — in a web page, PDF
 
 [日本語のREADMEはこちら](README.ja.md)
 
+![Demo](docs/demo.gif)
+
 ## Features
 
 - ⚡ **Fast** — Swift + Apple Vision framework (hardware-accelerated). Detection completes in tens of milliseconds after a right-click
@@ -16,9 +18,28 @@ QRScope is a macOS menu bar app. Right-click on a QR code — in a web page, PDF
 - 🌐 **Localized** — English and Japanese, following your system language
 - 🔍 Also detects Aztec and DataMatrix codes
 
+## Screenshots
+
+| QR Generator | Scan History |
+|:---:|:---:|
+| ![Generator](docs/generator.png) | ![History](docs/history.png) |
+
 ## Installation
 
-Requirements: macOS 14 (Sonoma) or later, Xcode Command Line Tools.
+Requirements: macOS 14 (Sonoma) or later.
+
+### Homebrew (recommended)
+
+```bash
+brew tap towanaruto/tap
+brew install --cask --no-quarantine qrscope
+```
+
+`--no-quarantine` is needed because the app is ad-hoc signed (not notarized). Then launch QRScope from Applications.
+
+### Build from source
+
+Requires Xcode Command Line Tools.
 
 ```bash
 git clone https://github.com/towanaruto/QRScope.git
@@ -26,6 +47,8 @@ cd QRScope
 ./Scripts/build-app.sh
 open build/QRScope.app
 ```
+
+### Grant permission
 
 On first launch, macOS asks for **Screen Recording** permission (required for detection):
 

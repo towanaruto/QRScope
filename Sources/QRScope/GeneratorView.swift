@@ -13,6 +13,13 @@ struct GeneratorView: View {
     @State private var size: Double = 512
     @State private var copied = false
 
+    init(demoPreset: Bool = false) {
+        guard demoPreset else { return }
+        _text = State(initialValue: "https://github.com/towanaruto/QRScope")
+        _style = State(initialValue: .rounded)
+        _foreground = State(initialValue: Color(red: 0.16, green: 0.29, blue: 0.75))
+    }
+
     private var options: QRGenerationOptions {
         var options = QRGenerationOptions()
         options.foreground = NSColor(foreground)
