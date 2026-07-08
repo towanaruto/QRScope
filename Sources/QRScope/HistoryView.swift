@@ -13,9 +13,9 @@ struct HistoryView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                TextField("検索", text: $query)
+                TextField(L10n.t("Search", "検索"), text: $query)
                     .textFieldStyle(.roundedBorder)
-                Button("すべて削除", role: .destructive) {
+                Button(L10n.t("Clear All", "すべて削除"), role: .destructive) {
                     store.clear()
                 }
                 .disabled(store.items.isEmpty)
@@ -24,7 +24,9 @@ struct HistoryView: View {
             Divider()
             if filtered.isEmpty {
                 Spacer()
-                Text(store.items.isEmpty ? "履歴はありません" : "該当する項目がありません")
+                Text(store.items.isEmpty
+                     ? L10n.t("No history yet", "履歴はありません")
+                     : L10n.t("No matching items", "該当する項目がありません"))
                     .foregroundStyle(.secondary)
                 Spacer()
             } else {
@@ -48,13 +50,13 @@ struct HistoryView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .help(item.payload)
-                Text("\(item.date.formatted(date: .abbreviated, time: .shortened)) ・ \(item.source)")
+                Text("\(item.date.formatted(date: .abbreviated, time: .shortened)) ・ \(item.sourceLabel)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
             if let url {
-                Button("開く") {
+                Button(L10n.t("Open", "開く")) {
                     NSWorkspace.shared.open(url)
                 }
                 .controlSize(.small)
@@ -67,14 +69,14 @@ struct HistoryView: View {
                 Image(systemName: "doc.on.doc")
             }
             .controlSize(.small)
-            .help("コピー")
+            .help(L10n.t("Copy", "コピー"))
             Button(role: .destructive) {
                 store.remove(item)
             } label: {
                 Image(systemName: "trash")
             }
             .controlSize(.small)
-            .help("削除")
+            .help(L10n.t("Delete", "削除"))
         }
         .padding(.vertical, 2)
     }

@@ -22,7 +22,7 @@ struct OverlayView: View {
                         .frame(maxWidth: 280, alignment: .leading)
                         .help(result.payload)
                     if result.url != nil {
-                        Button("開く") { onOpen(result) }
+                        Button(L10n.t("Open", "開く")) { onOpen(result) }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.small)
                     }
@@ -33,7 +33,7 @@ struct OverlayView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
-                    .help("コピー")
+                    .help(L10n.t("Copy", "コピー"))
                 }
             }
         }

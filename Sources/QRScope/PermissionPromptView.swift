@@ -10,13 +10,15 @@ struct PermissionPromptView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(.yellow)
             VStack(alignment: .leading, spacing: 2) {
-                Text("QRを読むには画面収録の許可が必要です")
+                Text(L10n.t("Screen Recording permission is required to read QR codes",
+                            "QRを読むには画面収録の許可が必要です"))
                     .font(.system(size: 13, weight: .semibold))
-                Text("許可した後、QRScope を再起動してください")
+                Text(L10n.t("After granting, restart QRScope",
+                            "許可した後、QRScope を再起動してください"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Button("設定を開く") { onOpenSettings() }
+            Button(L10n.t("Open Settings", "設定を開く")) { onOpenSettings() }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
         }

@@ -24,7 +24,7 @@ enum SelfTest {
                     let label = "style=\(style.rawValue) transparent=\(transparent) payload=\(payload.prefix(24))…"
                     guard let image = QRCodeRenderer.image(text: payload, options: options),
                           let composited = compositeOverWhite(image) else {
-                        print("FAIL(生成) \(label)")
+                        print("FAIL(generate) \(label)")
                         failed += 1
                         continue
                     }
@@ -33,14 +33,14 @@ enum SelfTest {
                         print("PASS \(label)")
                         passed += 1
                     } else {
-                        print("FAIL(検出) \(label) -> \(hits.map(\.payload))")
+                        print("FAIL(detect) \(label) -> \(hits.map(\.payload))")
                         failed += 1
                     }
                 }
             }
         }
 
-        print("結果: \(passed) passed, \(failed) failed")
+        print("Result: \(passed) passed, \(failed) failed")
         return failed == 0
     }
 

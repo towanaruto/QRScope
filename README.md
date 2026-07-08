@@ -1,69 +1,84 @@
 # QRScope
 
-画面上のQRコードを**右クリック+ボタンひとつ**で開ける macOS メニューバーアプリ。
+**Right-click any QR code on your screen and open it with one click.**
 
-Webページ・PDF・写真アプリなど、**画面に映っているものすべて**が対象です。QRコードの上で右クリックすると、カーソルのすぐ横に「開く」ボタン付きのチップが表示されます。
+QRScope is a macOS menu bar app. Right-click on a QR code — in a web page, PDF, photo, video call, anything visible on screen — and a small chip appears next to your cursor with an **Open** button.
 
-## 特徴
+[日本語のREADMEはこちら](README.ja.md)
 
-- ⚡ **高速**: Swift + Apple Vision フレームワーク(ハードウェア支援)による検出。右クリックからチップ表示まで数十ミリ秒
-- 🔋 **省電力**: 常時ポーリングではなく右クリックの瞬間だけカーソル周辺(680pt四方)をキャプチャして検出するため、バックグラウンド負荷ほぼゼロ
-- 🖱️ **直感的**: アプリを起動して読み取り操作をする必要なし。QRの上で右クリック → 「開く」を押すだけ
-- 📜 **履歴**: 開いた/コピーしたQRの内容を自動保存(検索・削除対応)
-- 🎨 **QR生成**: 前景色・背景色・透明背景・スタイル(スクエア/角丸/ドット)・誤り訂正レベル・サイズを指定してPNG保存/コピー
-- 🔍 QRのほか Aztec / DataMatrix コードにも対応
+## Features
 
-## ビルドと起動
+- ⚡ **Fast** — Swift + Apple Vision framework (hardware-accelerated). Detection completes in tens of milliseconds after a right-click
+- 🔋 **Efficient** — no constant polling. It captures only a small region around the cursor at the moment you right-click, so background load is essentially zero
+- 🖱️ **Intuitive** — no need to open an app or take screenshots. Just right-click on a QR code
+- 📜 **History** — everything you open or copy is saved (searchable, deletable)
+- 🎨 **QR generator** — foreground/background colors, transparent background, module styles (square / rounded / dots), error correction level, size; export as PNG or copy
+- 🌐 **Localized** — English and Japanese, following your system language
+- 🔍 Also detects Aztec and DataMatrix codes
+
+## Installation
+
+Requirements: macOS 14 (Sonoma) or later, Xcode Command Line Tools.
 
 ```bash
+git clone https://github.com/towanaruto/QRScope.git
+cd QRScope
 ./Scripts/build-app.sh
 open build/QRScope.app
 ```
 
-初回起動時に**画面収録の許可**を求められます(検出に必須)。
-「システム設定 → プライバシーとセキュリティ → 画面収録とシステムオーディオ録音」で QRScope を有効にし、アプリを再起動してください。
+On first launch, macOS asks for **Screen Recording** permission (required for detection):
 
-> **Note**: ad-hoc 署名のため、再ビルドすると画面収録の許可の再付与が必要になる場合があります。
+1. Open **System Settings → Privacy & Security → Screen Recording**
+2. Enable **QRScope**
+3. Restart QRScope
 
-## 使い方
+> **Note**: The build is ad-hoc signed, so rebuilding invalidates the permission — re-grant it after each rebuild (remove and re-add the entry if the toggle doesn't stick).
 
-| 操作 | 動作 |
+## Usage
+
+| Action | Result |
+|--------|--------|
+| Right-click on a QR code | A chip appears next to the cursor → **Open** launches the link, 📋 copies the content |
+| Menu bar → Scan Entire Screen | Detects all QR codes on every display at once |
+| Menu bar → Scan History… | Searchable list of everything you've opened or copied |
+| Menu bar → Generate QR Code… | Styled QR generation with PNG export |
+| Menu bar → Launch at Login | Registers as a login item |
+
+The chip dismisses automatically when you click elsewhere or after 12 seconds.
+
+For safety, **Open** is enabled only for `http(s)`, `mailto`, `tel`, `sms`, `facetime`, and `maps` schemes. Other payloads (Wi-Fi credentials, contacts, etc.) can be retrieved via copy.
+
+## How it works
+
+```
+Right-click (global NSEvent monitor — no accessibility permission needed)
+  → Capture region around cursor (ScreenCaptureKit / SCScreenshotManager)
+  → Detect barcodes (Vision / VNDetectBarcodesRequest, off the main thread)
+  → Show a chip next to the cursor (non-activating NSPanel — never steals focus)
+  → Open / Copy → saved to history (~/Library/Application Support/QRScope/history.json)
+```
+
+| File | Role |
 |------|------|
-| QRコードの上で右クリック | カーソル横にチップ表示 → 「開く」でブラウザ起動、📋 でコピー |
-| メニューバー → 画面全体をスキャン | 表示中の全ディスプレイからQRを一括検出 |
-| メニューバー → 読み取り履歴… | 過去に開いた/コピーした内容の一覧(検索可) |
-| メニューバー → QRコードを生成… | スタイル指定つきQR生成・PNG書き出し |
-| メニューバー → ログイン時に自動起動 | ログイン項目に登録 |
+| `AppDelegate.swift` | Wiring and the detection flow |
+| `RightClickMonitor.swift` | Global right-click monitoring |
+| `ScreenCapturer.swift` | ScreenCaptureKit capture (excludes own windows, caches display info) |
+| `QRDetector.swift` | Vision barcode detection |
+| `OverlayController/View.swift` | Floating chip next to the cursor |
+| `HistoryStore/View.swift` | History persistence and UI |
+| `QRCodeRenderer.swift` | Styled QR renderer (CoreImage matrix → CoreGraphics drawing) |
+| `GeneratorView.swift` | QR generator UI |
+| `L10n.swift` | English/Japanese localization |
+| `SelfTest.swift` | Generate→detect roundtrip verification |
 
-チップは他の場所をクリックするか12秒経つと自動で消えます。
-
-安全のため「開く」が有効になるのは `http(s)` `mailto` `tel` `sms` `facetime` `maps` スキームのみです。それ以外の内容(Wi-Fi設定・連絡先など)はコピーで取得できます。
-
-## 開発
+## Development
 
 ```bash
-swift build            # デバッグビルド
-.build/debug/QRScope --selftest   # 生成→検出のラウンドトリップ検証
+swift build                        # debug build
+.build/debug/QRScope --selftest    # verify generate→detect roundtrip for all styles
 ```
 
-### アーキテクチャ
+## License
 
-```
-右クリック(NSEventグローバル監視 ※権限不要)
-  → カーソル周辺をキャプチャ(ScreenCaptureKit / SCScreenshotManager)
-  → QR検出(Vision / VNDetectBarcodesRequest ※バックグラウンドスレッド)
-  → カーソル横にチップ表示(非アクティブ化NSPanel ※フォーカスを奪わない)
-  → 開く/コピー → 履歴保存(~/Library/Application Support/QRScope/history.json)
-```
-
-| ファイル | 役割 |
-|---------|------|
-| `AppDelegate.swift` | 全体の配線・検出フロー |
-| `RightClickMonitor.swift` | 右クリックのグローバル監視 |
-| `ScreenCapturer.swift` | ScreenCaptureKit によるキャプチャ(自アプリ除外・ディスプレイ構成キャッシュ) |
-| `QRDetector.swift` | Vision によるバーコード検出 |
-| `OverlayController/View.swift` | カーソル横のフローティングチップ |
-| `HistoryStore/View.swift` | 履歴の永続化とUI |
-| `QRCodeRenderer.swift` | スタイル対応QRレンダラー(CoreImage で行列取得→CoreGraphics で描画) |
-| `GeneratorView.swift` | QR生成UI |
-| `SelfTest.swift` | 全スタイルの生成→検出検証 |
+[MIT](LICENSE)

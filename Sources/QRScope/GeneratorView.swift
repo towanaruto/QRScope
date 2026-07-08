@@ -43,30 +43,30 @@ struct GeneratorView: View {
 
     private var form: some View {
         Form {
-            Section("内容") {
-                TextField("URL やテキスト", text: $text, axis: .vertical)
+            Section(L10n.t("Content", "内容")) {
+                TextField(L10n.t("URL or text", "URL やテキスト"), text: $text, axis: .vertical)
                     .lineLimit(3...6)
             }
-            Section("スタイル") {
-                Picker("モジュール", selection: $style) {
+            Section(L10n.t("Style", "スタイル")) {
+                Picker(L10n.t("Modules", "モジュール"), selection: $style) {
                     ForEach(ModuleStyle.allCases) { style in
                         Text(style.label).tag(style)
                     }
                 }
                 .pickerStyle(.segmented)
-                ColorPicker("前景色", selection: $foreground, supportsOpacity: true)
-                ColorPicker("背景色", selection: $background)
+                ColorPicker(L10n.t("Foreground", "前景色"), selection: $foreground, supportsOpacity: true)
+                ColorPicker(L10n.t("Background", "背景色"), selection: $background)
                     .disabled(transparent)
-                Toggle("背景を透明にする", isOn: $transparent)
-                Toggle("余白(クワイエットゾーン)", isOn: $quietZone)
+                Toggle(L10n.t("Transparent background", "背景を透明にする"), isOn: $transparent)
+                Toggle(L10n.t("Quiet zone (margin)", "余白(クワイエットゾーン)"), isOn: $quietZone)
             }
-            Section("出力") {
-                Picker("誤り訂正", selection: $correction) {
+            Section(L10n.t("Output", "出力")) {
+                Picker(L10n.t("Error correction", "誤り訂正"), selection: $correction) {
                     ForEach(CorrectionLevel.allCases) { level in
                         Text(level.label).tag(level)
                     }
                 }
-                LabeledContent("サイズ") {
+                LabeledContent(L10n.t("Size", "サイズ")) {
                     HStack {
                         Slider(value: $size, in: 256...2048, step: 64)
                         Text("\(Int(size))px")
@@ -91,7 +91,9 @@ struct GeneratorView: View {
                         .interpolation(.none)
                         .scaledToFit()
                 } else {
-                    Text(text.isEmpty ? "内容を入力してください" : "生成できません(内容が長すぎる可能性があります)")
+                    Text(text.isEmpty
+                         ? L10n.t("Enter content to generate", "内容を入力してください")
+                         : L10n.t("Cannot generate (content may be too long)", "生成できません(内容が長すぎる可能性があります)"))
                         .foregroundStyle(.secondary)
                         .padding()
                 }
@@ -105,9 +107,9 @@ struct GeneratorView: View {
             )
 
             HStack {
-                Button("PNGを保存…") { save() }
+                Button(L10n.t("Save PNG…", "PNGを保存…")) { save() }
                     .disabled(image == nil)
-                Button(copied ? "コピーしました ✓" : "コピー") { copy() }
+                Button(copied ? L10n.t("Copied ✓", "コピーしました ✓") : L10n.t("Copy", "コピー")) { copy() }
                     .disabled(image == nil)
             }
         }

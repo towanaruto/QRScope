@@ -10,9 +10,9 @@ enum ModuleStyle: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .square: return "スクエア"
-        case .rounded: return "角丸"
-        case .dots: return "ドット"
+        case .square: return L10n.t("Square", "スクエア")
+        case .rounded: return L10n.t("Rounded", "角丸")
+        case .dots: return L10n.t("Dots", "ドット")
         }
     }
 }

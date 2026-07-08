@@ -30,29 +30,29 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        let toggle = menuItem("右クリックでQRを検出", #selector(toggleDetection))
+        let toggle = menuItem(L10n.t("Detect QR on Right-Click", "右クリックでQRを検出"), #selector(toggleDetection))
         toggle.state = actions.isDetectionEnabled() ? .on : .off
         menu.addItem(toggle)
-        menu.addItem(menuItem("画面全体をスキャン", #selector(scanFullScreen), key: "s"))
+        menu.addItem(menuItem(L10n.t("Scan Entire Screen", "画面全体をスキャン"), #selector(scanFullScreen), key: "s"))
         menu.addItem(.separator())
 
-        menu.addItem(menuItem("読み取り履歴…", #selector(showHistory), key: "h"))
-        menu.addItem(menuItem("QRコードを生成…", #selector(showGenerator), key: "g"))
+        menu.addItem(menuItem(L10n.t("Scan History…", "読み取り履歴…"), #selector(showHistory), key: "h"))
+        menu.addItem(menuItem(L10n.t("Generate QR Code…", "QRコードを生成…"), #selector(showGenerator), key: "g"))
         menu.addItem(.separator())
 
-        let login = menuItem("ログイン時に自動起動", #selector(toggleLoginItem))
+        let login = menuItem(L10n.t("Launch at Login", "ログイン時に自動起動"), #selector(toggleLoginItem))
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
 
         if CGPreflightScreenCaptureAccess() {
-            let granted = menuItem("画面収録: 許可済み", #selector(openScreenCaptureSettings))
+            let granted = menuItem(L10n.t("Screen Recording: Granted", "画面収録: 許可済み"), #selector(openScreenCaptureSettings))
             menu.addItem(granted)
         } else {
-            menu.addItem(menuItem("⚠️ 画面収録を許可…", #selector(openScreenCaptureSettings)))
+            menu.addItem(menuItem(L10n.t("⚠️ Allow Screen Recording…", "⚠️ 画面収録を許可…"), #selector(openScreenCaptureSettings)))
         }
         menu.addItem(.separator())
 
-        let quit = NSMenuItem(title: "QRScopeを終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quit = NSMenuItem(title: L10n.t("Quit QRScope", "QRScopeを終了"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quit)
     }
 
@@ -77,8 +77,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             }
         } catch {
             let alert = NSAlert()
-            alert.messageText = "ログイン項目の設定に失敗しました"
-            alert.informativeText = "アプリバンドル(QRScope.app)として実行している場合のみ利用できます。\n\(error.localizedDescription)"
+            alert.messageText = L10n.t("Failed to update login item", "ログイン項目の設定に失敗しました")
+            alert.informativeText = L10n.t(
+                "This is only available when running as an app bundle (QRScope.app).\n",
+                "アプリバンドル(QRScope.app)として実行している場合のみ利用できます。\n"
+            ) + error.localizedDescription
             alert.runModal()
         }
     }

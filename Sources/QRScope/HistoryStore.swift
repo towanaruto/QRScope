@@ -6,6 +6,18 @@ struct HistoryItem: Identifiable, Codable, Equatable {
     var date: Date
     var source: String
     var openedURL: String?
+
+    /// source は言語非依存のキーで保存し、表示時にローカライズする
+    static let sourceRightClick = "right-click"
+    static let sourceFullScan = "full-scan"
+
+    var sourceLabel: String {
+        switch source {
+        case Self.sourceRightClick: return L10n.t("Right-click", "右クリック")
+        case Self.sourceFullScan: return L10n.t("Full-screen scan", "全画面スキャン")
+        default: return source
+        }
+    }
 }
 
 /// 読み取り履歴。Application Support 配下の JSON に永続化する。

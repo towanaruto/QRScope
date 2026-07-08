@@ -15,7 +15,7 @@ final class WindowManager {
     func showHistory() {
         if historyWindow == nil {
             historyWindow = makeWindow(
-                title: "読み取り履歴",
+                title: L10n.t("Scan History", "読み取り履歴"),
                 size: NSSize(width: 560, height: 460),
                 root: HistoryView(store: history)
             )
@@ -26,7 +26,7 @@ final class WindowManager {
     func showGenerator() {
         if generatorWindow == nil {
             generatorWindow = makeWindow(
-                title: "QRコードを生成",
+                title: L10n.t("Generate QR Code", "QRコードを生成"),
                 size: NSSize(width: 760, height: 540),
                 root: GeneratorView()
             )

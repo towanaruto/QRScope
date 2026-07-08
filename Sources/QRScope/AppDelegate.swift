@@ -77,7 +77,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard generation == clickGeneration, !hits.isEmpty else { return }
 
                 let results = Self.mapToScreen(hits: hits, captureRect: capture.rectInScreen, cursor: point)
-                presentOverlay(results: results, near: point, source: "右クリック")
+                presentOverlay(results: results, near: point, source: HistoryItem.sourceRightClick)
             } catch {
                 NSLog("QRScope: capture failed: \(error.localizedDescription)")
             }
@@ -126,8 +126,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     results.append(result)
                 }
             }
-            presentOverlay(results: results, near: cursor, source: "全画面スキャン",
-                           emptyMessage: "QRコードが見つかりませんでした")
+            presentOverlay(results: results, near: cursor, source: HistoryItem.sourceFullScan,
+                           emptyMessage: L10n.t("No QR codes found", "QRコードが見つかりませんでした"))
         }
     }
 
