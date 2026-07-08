@@ -32,10 +32,12 @@ Requirements: macOS 14 (Sonoma) or later.
 
 ```bash
 brew tap towanaruto/tap
-brew install --cask --no-quarantine qrscope
+brew trust towanaruto/tap   # Homebrew 6+
+brew install --cask qrscope
+xattr -d com.apple.quarantine /Applications/QRScope.app
 ```
 
-`--no-quarantine` is needed because the app is ad-hoc signed (not notarized). Then launch QRScope from Applications.
+The `xattr` step is needed because the app is ad-hoc signed (not notarized) and Gatekeeper would block it otherwise. Then launch QRScope from Applications.
 
 ### Build from source
 
