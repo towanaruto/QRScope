@@ -5,8 +5,11 @@ struct StatusBarActions {
     var isDetectionEnabled: () -> Bool
     var toggleDetection: () -> Void
     var scanFullScreen: () -> Void
+    var showScanner: () -> Void
     var showHistory: () -> Void
     var showGenerator: () -> Void
+    var availableUpdateVersion: () -> String?
+    var checkForUpdates: () -> Void
 }
 
 @MainActor
@@ -34,6 +37,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         toggle.state = actions.isDetectionEnabled() ? .on : .off
         menu.addItem(toggle)
         menu.addItem(menuItem(L10n.t("Scan Entire Screen", "画面全体をスキャン"), #selector(scanFullScreen), key: "s"))
+        menu.addItem(menuItem(L10n.t("Scan with iPhone Camera…", "iPhoneカメラで読み取り…"), #selector(showScanner), key: "c"))
         menu.addItem(.separator())
 
         menu.addItem(menuItem(L10n.t("Scan History…", "読み取り履歴…"), #selector(showHistory), key: "h"))
@@ -50,6 +54,21 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         } else {
             menu.addItem(menuItem(L10n.t("⚠️ Allow Screen Recording…", "⚠️ 画面収録を許可…"), #selector(openScreenCaptureSettings)))
         }
+
+        // 選択リンクからのQR作成に必要(未許可でもQR検出は動く)
+        if SelectionReader.isTrusted {
+            menu.addItem(menuItem(L10n.t("Accessibility: Granted", "アクセシビリティ: 許可済み"), #selector(openAccessibilitySettings)))
+        } else {
+            menu.addItem(menuItem(
+                L10n.t("⚠️ Allow Accessibility (QR from selected link)…", "⚠️ アクセシビリティを許可(選択リンクからQR作成)…"),
+                #selector(requestAccessibility)
+            ))
+        }
+        if let version = actions.availableUpdateVersion() {
+            menu.addItem(menuItem("⬆️ " + L10n.t("Update to \(version)…", "\(version) に更新…"), #selector(checkForUpdates)))
+        } else {
+            menu.addItem(menuItem(L10n.t("Check for Updates…", "アップデートを確認…"), #selector(checkForUpdates)))
+        }
         menu.addItem(.separator())
 
         let quit = NSMenuItem(title: L10n.t("Quit QRScope", "QRScopeを終了"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -64,6 +83,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func toggleDetection() { actions.toggleDetection() }
     @objc private func scanFullScreen() { actions.scanFullScreen() }
+    @objc private func showScanner() { actions.showScanner() }
+    @objc private func checkForUpdates() { actions.checkForUpdates() }
     @objc private func showHistory() { actions.showHistory() }
     @objc private func showGenerator() { actions.showGenerator() }
 
@@ -88,6 +109,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func openScreenCaptureSettings() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
+        NSWorkspace.shared.open(url)
+    }
+
+    @objc private func requestAccessibility() {
+        SelectionReader.requestPermission()
+    }
+
+    @objc private func openAccessibilitySettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
         NSWorkspace.shared.open(url)
     }
 }

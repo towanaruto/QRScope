@@ -10,11 +10,13 @@ struct HistoryItem: Identifiable, Codable, Equatable {
     /// source は言語非依存のキーで保存し、表示時にローカライズする
     static let sourceRightClick = "right-click"
     static let sourceFullScan = "full-scan"
+    static let sourceCamera = "camera"
 
     var sourceLabel: String {
         switch source {
         case Self.sourceRightClick: return L10n.t("Right-click", "右クリック")
         case Self.sourceFullScan: return L10n.t("Full-screen scan", "全画面スキャン")
+        case Self.sourceCamera: return L10n.t("Camera", "カメラ")
         default: return source
         }
     }

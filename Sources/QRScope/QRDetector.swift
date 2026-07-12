@@ -11,9 +11,17 @@ struct QRHit {
 enum QRDetector {
     /// Vision によるバーコード検出(同期)。QR以外に Aztec / DataMatrix も対象。
     static func detectSync(in image: CGImage) -> [QRHit] {
+        detectSync(with: VNImageRequestHandler(cgImage: image, options: [:]))
+    }
+
+    /// カメラフレーム(CVPixelBuffer)を CGImage 変換なしで直接検出する
+    static func detectSync(in pixelBuffer: CVPixelBuffer) -> [QRHit] {
+        detectSync(with: VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:]))
+    }
+
+    private static func detectSync(with handler: VNImageRequestHandler) -> [QRHit] {
         let request = VNDetectBarcodesRequest()
         request.symbologies = [.qr, .aztec, .dataMatrix]
-        let handler = VNImageRequestHandler(cgImage: image, options: [:])
         do {
             try handler.perform([request])
         } catch {

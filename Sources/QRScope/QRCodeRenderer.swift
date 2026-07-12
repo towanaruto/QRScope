@@ -93,6 +93,22 @@ enum QRCodeRenderer {
         return result
     }
 
+    /// 内容が収まる範囲で最も高い誤り訂正レベルを選んで生成する。
+    /// 長いURLは低レベルでしか収まらないため、H→Lの順に試して
+    /// 「短ければ高耐性・長ければとにかく生成できる」を両立させる。
+    static func bestImage(text: String, pixelSize: Int = 512, style: ModuleStyle = .square) -> NSImage? {
+        for level in [CorrectionLevel.h, .q, .m, .l] {
+            var options = QRGenerationOptions()
+            options.pixelSize = pixelSize
+            options.style = style
+            options.correction = level
+            if let image = image(text: text, options: options) {
+                return image
+            }
+        }
+        return nil
+    }
+
     static func image(text: String, options: QRGenerationOptions) -> NSImage? {
         guard let matrix = matrix(text: text, correction: options.correction) else { return nil }
         let moduleCount = matrix.count

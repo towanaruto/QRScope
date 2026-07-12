@@ -9,7 +9,7 @@ final class OverlayController {
     private var clickMonitor: Any?
     private var hideTimer: Timer?
 
-    func show<Content: View>(_ content: Content, near point: CGPoint) {
+    func show<Content: View>(_ content: Content, near point: CGPoint, autoHideAfter: TimeInterval = 12) {
         hide()
 
         let hosting = NSHostingView(rootView: content)
@@ -57,7 +57,7 @@ final class OverlayController {
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             Task { @MainActor in self?.hide() }
         }
-        hideTimer = Timer.scheduledTimer(withTimeInterval: 12, repeats: false) { [weak self] _ in
+        hideTimer = Timer.scheduledTimer(withTimeInterval: autoHideAfter, repeats: false) { [weak self] _ in
             Task { @MainActor in self?.hide() }
         }
     }

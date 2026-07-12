@@ -16,5 +16,12 @@ plutil -lint "$APP/Contents/Info.plist" > /dev/null
 # ad-hoc 署名(再ビルド後は画面収録の許可が再度必要になる場合あり)
 codesign --force --sign - "$APP"
 
+# 配布用 zip(GitHub Release / 自動アップデートのアセット)
+VERSION=$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")
+ZIP="build/QRScope-$VERSION.zip"
+rm -f "$ZIP"
+ditto -ck --keepParent "$APP" "$ZIP"
+
 echo "✅ Built: $APP"
+echo "✅ Zipped: $ZIP"
 echo "起動: open $APP"

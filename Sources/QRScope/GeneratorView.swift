@@ -13,7 +13,10 @@ struct GeneratorView: View {
     @State private var size: Double = 512
     @State private var copied = false
 
-    init(demoPreset: Bool = false) {
+    init(demoPreset: Bool = false, initialText: String? = nil) {
+        if let initialText {
+            _text = State(initialValue: initialText)
+        }
         guard demoPreset else { return }
         _text = State(initialValue: "https://github.com/towanaruto/QRScope")
         _style = State(initialValue: .rounded)
