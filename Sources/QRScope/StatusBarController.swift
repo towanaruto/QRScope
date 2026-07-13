@@ -8,6 +8,7 @@ struct StatusBarActions {
     var showScanner: () -> Void
     var showHistory: () -> Void
     var showGenerator: () -> Void
+    var makeQRFromClipboard: () -> Void
     var availableUpdateVersion: () -> String?
     var checkForUpdates: () -> Void
 }
@@ -38,6 +39,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(toggle)
         menu.addItem(menuItem(L10n.t("Scan Entire Screen", "画面全体をスキャン"), #selector(scanFullScreen), key: "s"))
         menu.addItem(menuItem(L10n.t("Scan with iPhone Camera…", "iPhoneカメラで読み取り…"), #selector(showScanner), key: "c"))
+        // クリップボードのURLをQR化(Slack等 a11y非対応アプリのリンク対策)
+        let clip = menuItem(L10n.t("Make QR from Clipboard URL", "クリップボードのURLをQR化"), #selector(makeQRFromClipboard), key: "v")
+        clip.keyEquivalentModifierMask = [.control, .option, .command]
+        menu.addItem(clip)
         menu.addItem(.separator())
 
         menu.addItem(menuItem(L10n.t("Scan History…", "読み取り履歴…"), #selector(showHistory), key: "h"))
@@ -84,6 +89,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func toggleDetection() { actions.toggleDetection() }
     @objc private func scanFullScreen() { actions.scanFullScreen() }
     @objc private func showScanner() { actions.showScanner() }
+    @objc private func makeQRFromClipboard() { actions.makeQRFromClipboard() }
     @objc private func checkForUpdates() { actions.checkForUpdates() }
     @objc private func showHistory() { actions.showHistory() }
     @objc private func showGenerator() { actions.showGenerator() }

@@ -89,6 +89,12 @@ enum SelectionReader {
         return nil
     }
 
+    /// クリップボード等、任意テキストからリンクを作る
+    /// (選択テキスト・埋め込みリンクと同じ URL 判定を共有する)
+    static func link(fromText text: String) -> SelectedLink? {
+        makeLink(from: text)
+    }
+
     private static func makeLink(from raw: String) -> SelectedLink? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         // QR は最も容量の大きい L レベルでも約 2953 バイトが上限。

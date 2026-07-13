@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import ScreenCaptureKit
 import UniformTypeIdentifiers
 
@@ -11,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let overlay = OverlayController()
     private let capturer = ScreenCapturer()
     private let updater = UpdateChecker()
+    private var clipboardHotKey: GlobalHotKey?
 
     /// 連打時に古い検出結果を破棄するための世代カウンタ
     private var clickGeneration = 0
@@ -40,6 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             showScanner: { [weak self] in self?.windows.showScanner() },
             showHistory: { [weak self] in self?.windows.showHistory() },
             showGenerator: { [weak self] in self?.windows.showGenerator() },
+            makeQRFromClipboard: { [weak self] in self?.makeQRFromClipboard() },
             availableUpdateVersion: { [weak self] in self?.updater.availableVersion },
             checkForUpdates: { [weak self] in self?.updater.userInitiatedCheck() }
         ))
@@ -48,6 +51,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         monitor.start()
         updater.startPeriodicChecks()
+
+        // ⌃⌥⌘V: クリップボードのURLをその場でQR化(Slack等 a11y非対応アプリ用)。
+        // 「リンクをコピー」→ このショートカット、で埋め込みリンクもQRにできる。
+        clipboardHotKey = GlobalHotKey(keyCode: UInt32(kVK_ANSI_V),
+                                       modifiers: UInt32(controlKey | optionKey | cmdKey)) { [weak self] in
+            self?.makeQRFromClipboard()
+        }
 
         let hasAccess = CGPreflightScreenCaptureAccess()
         NSLog("QRScope: screen capture access = \(hasAccess)")
@@ -280,6 +290,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static func suggestedFileName(for link: SelectedLink) -> String {
         guard let host = link.url.host, !host.isEmpty else { return "qrcode.png" }
         return "qr-\(host).png"
+    }
+
+    // MARK: - クリップボードからのQR作成
+
+    /// クリップボードのURLをその場でQR化する。
+    /// Slack 等 Electron/Chromium アプリは埋め込みリンクのURLをアクセシビリティに
+    /// 公開しないため、そこでは「リンクをコピー」→この操作、で対応する。
+    func makeQRFromClipboard() {
+        overlay.hide()
+        let point = NSEvent.mouseLocation
+        guard let text = NSPasteboard.general.string(forType: .string),
+              let link = SelectionReader.link(fromText: text) else {
+            let view = OverlayView(
+                results: [],
+                emptyMessage: L10n.t("No URL on the clipboard", "クリップボードにURLがありません"),
+                onOpen: { _ in }, onCopy: { _ in }
+            )
+            overlay.show(view, near: point)
+            return
+        }
+        showLinkQR(link, near: point)
     }
 
     private func presentPermissionPromptIfNeeded(near point: CGPoint) {

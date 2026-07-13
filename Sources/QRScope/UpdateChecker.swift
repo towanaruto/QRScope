@@ -116,8 +116,8 @@ final class UpdateChecker {
         alert.messageText = L10n.t("QRScope \(release.version) is available",
                                    "QRScope \(release.version) が利用可能です")
         alert.informativeText = L10n.t(
-            "Current version: \(currentVersion)\nAfter updating, you'll need to re-grant Screen Recording and other permissions (the app is ad-hoc signed).",
-            "現在のバージョン: \(currentVersion)\n更新後は ad-hoc 署名のため、画面収録などの権限を再度許可する必要があります。")
+            "Current version: \(currentVersion)\nScreen Recording and other permissions are preserved across updates.",
+            "現在のバージョン: \(currentVersion)\nアップデートしても画面収録などの権限は維持されます。")
         alert.addButton(withTitle: L10n.t("Update Now", "今すぐ更新"))
         alert.addButton(withTitle: L10n.t("Later", "あとで"))
         if allowSkip {

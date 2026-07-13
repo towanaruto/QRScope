@@ -16,8 +16,9 @@ QRScope is a macOS menu bar app. Right-click on a QR code — in a web page, PDF
 - 📜 **History** — everything you open or copy is saved (searchable, deletable)
 - 🎨 **QR generator** — foreground/background colors, transparent background, module styles (square / rounded / dots), error correction level, size; export as PNG or copy
 - 🔗 **QR from a link** — right-click a selected URL *or* text with an embedded hyperlink, and a **Make QR** chip appears: show a scannable QR on the spot, copy it as PNG, or save it (requires Accessibility permission)
+- 📋 **QR from the clipboard** — copy any URL and press ⌃⌥⌘V (or menu bar → Make QR from Clipboard URL) to turn it into a QR instantly. Use this in apps whose links aren't exposed to macOS accessibility, such as Slack and other Electron/Chromium apps
 - 📱 **Scan with iPhone camera** — Continuity Camera turns your iPhone into a scanner: point it at a QR code in the real world and open the result on your Mac (falls back to the built-in camera)
-- 🔄 **Auto-update** — checks GitHub Releases daily and updates itself in one click (also available from the menu bar: Check for Updates…)
+- 🔄 **Auto-update** — checks GitHub Releases daily and updates itself in one click (also available from the menu bar: Check for Updates…). Permissions are preserved across updates
 - 🌐 **Localized** — English and Japanese, following your system language
 - 🔍 Also detects Aztec and DataMatrix codes
 
@@ -49,9 +50,11 @@ Requires Xcode Command Line Tools.
 ```bash
 git clone https://github.com/towanaruto/QRScope.git
 cd QRScope
-./Scripts/build-app.sh
+./Scripts/build-app.sh        # signs with a stable identity if one exists (see below)
 open build/QRScope.app
 ```
+
+Maintainers who publish releases should run `./Scripts/create-signing-cert.sh` once. It creates a stable self-signed code-signing identity so that TCC permissions (Screen Recording, etc.) survive auto-updates. Without it, `build-app.sh` falls back to ad-hoc signing and permissions reset on every update.
 
 ### Grant permission
 
@@ -61,11 +64,9 @@ On first launch, macOS asks for **Screen Recording** permission (required for de
 2. Enable **QRScope**
 3. Restart QRScope
 
-> **Note**: The build is ad-hoc signed, so rebuilding invalidates the permission — re-grant it after each rebuild (remove and re-add the entry if the toggle doesn't stick).
-
 Optionally, enable **Accessibility** permission to create QR codes from selected links (menu bar → **⚠️ Allow Accessibility**). QR detection works without it.
 
-> **Note**: Because of the ad-hoc signature, permissions also need to be re-granted after each auto-update.
+> **Permissions across updates**: Release builds are signed with a stable identity, so permissions are kept when the app auto-updates. Upgrading from an older ad-hoc build (≤ 1.4.0) to 1.5.0 is a one-time exception — grant once more after that update, and it sticks from then on.
 
 ## Usage
 
@@ -73,6 +74,7 @@ Optionally, enable **Accessibility** permission to create QR codes from selected
 |--------|--------|
 | Right-click on a QR code | A chip appears next to the cursor → **Open** launches the link, 📋 copies the content |
 | Right-click a selected URL or embedded hyperlink | **Make QR** shows a scannable QR next to the cursor; 📋 copies the QR as PNG, ⬇️ saves it |
+| Copy a URL, then ⌃⌥⌘V (or menu bar → Make QR from Clipboard URL) | Makes a QR from the clipboard URL — works everywhere, including Slack and other Electron/Chromium apps |
 | Menu bar → Scan Entire Screen | Detects all QR codes on every display at once |
 | Menu bar → Scan with iPhone Camera… | Opens a scanner window using Continuity Camera (or the built-in camera); **Open** launches the result on the Mac (requires Camera permission) |
 | Menu bar → Scan History… | Searchable list of everything you've opened or copied |
@@ -81,6 +83,8 @@ Optionally, enable **Accessibility** permission to create QR codes from selected
 | Menu bar → Check for Updates… | Downloads the latest GitHub release and replaces the app in place |
 
 The chip dismisses automatically when you click elsewhere or after 12 seconds.
+
+> The embedded-link **Make QR** chip reads the link through the macOS Accessibility API. Native apps (TextEdit, Notes, Mail, Safari, …) expose link URLs there, but Electron/Chromium apps (Slack, Discord, VS Code, Chrome) do not. In those apps, use the app's own "Copy Link", then press ⌃⌥⌘V.
 
 For safety, **Open** is enabled only for `http(s)`, `mailto`, `tel`, `sms`, `facetime`, and `maps` schemes. Other payloads (Wi-Fi credentials, contacts, etc.) can be retrieved via copy.
 

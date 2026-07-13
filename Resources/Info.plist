@@ -4,6 +4,12 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>QRScope</string>
+	<key>CFBundleExecutable</key>
+	<string>QRScope</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.qrscope.app</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -11,25 +17,19 @@
 	</array>
 	<key>CFBundleName</key>
 	<string>QRScope</string>
-	<key>CFBundleDisplayName</key>
-	<string>QRScope</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.qrscope.app</string>
-	<key>CFBundleExecutable</key>
-	<string>QRScope</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.0</string>
+	<string>1.5.0</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>8</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>QRScope uses the camera (including iPhone via Continuity Camera) to scan QR codes. / QRコードの読み取りにカメラ(iPhoneの連係カメラを含む)を使用します。</string>
 	<key>NSCameraUseContinuityCameraDeviceType</key>
-	<true/>
-	<key>LSUIElement</key>
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
