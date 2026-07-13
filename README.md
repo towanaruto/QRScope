@@ -15,7 +15,7 @@ QRScope is a macOS menu bar app. Right-click on a QR code — in a web page, PDF
 - 🖱️ **Intuitive** — no need to open an app or take screenshots. Just right-click on a QR code
 - 📜 **History** — everything you open or copy is saved (searchable, deletable)
 - 🎨 **QR generator** — foreground/background colors, transparent background, module styles (square / rounded / dots), error correction level, size; export as PNG or copy
-- 🔗 **QR from a selected link** — select a URL, right-click, and a **Make QR** chip appears: show a scannable QR on the spot, copy it as PNG, or save it (requires Accessibility permission)
+- 🔗 **QR from a link** — right-click a selected URL *or* text with an embedded hyperlink, and a **Make QR** chip appears: show a scannable QR on the spot, copy it as PNG, or save it (requires Accessibility permission)
 - 📱 **Scan with iPhone camera** — Continuity Camera turns your iPhone into a scanner: point it at a QR code in the real world and open the result on your Mac (falls back to the built-in camera)
 - 🔄 **Auto-update** — checks GitHub Releases daily and updates itself in one click (also available from the menu bar: Check for Updates…)
 - 🌐 **Localized** — English and Japanese, following your system language
@@ -72,7 +72,7 @@ Optionally, enable **Accessibility** permission to create QR codes from selected
 | Action | Result |
 |--------|--------|
 | Right-click on a QR code | A chip appears next to the cursor → **Open** launches the link, 📋 copies the content |
-| Right-click with a link selected | **Make QR** shows a scannable QR next to the cursor; 📋 copies the QR as PNG, ⬇️ saves it |
+| Right-click a selected URL or embedded hyperlink | **Make QR** shows a scannable QR next to the cursor; 📋 copies the QR as PNG, ⬇️ saves it |
 | Menu bar → Scan Entire Screen | Detects all QR codes on every display at once |
 | Menu bar → Scan with iPhone Camera… | Opens a scanner window using Continuity Camera (or the built-in camera); **Open** launches the result on the Mac (requires Camera permission) |
 | Menu bar → Scan History… | Searchable list of everything you've opened or copied |

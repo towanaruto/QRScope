@@ -27,6 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // LSUIElement(アクセサリ)アプリはメインメニューを持たないため、
+        // 標準の Edit メニューが無いと Cmd+V などがテキスト欄に届かない。
+        // ペースト等を効かせるために最小限のメニューを用意する。
+        installMainMenu()
+
         windows = WindowManager(history: history)
         statusBar = StatusBarController(actions: StatusBarActions(
             isDetectionEnabled: { [weak self] in self?.detectionEnabled ?? false },
@@ -52,6 +57,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Cmd+X/C/V/A・取り消しを responder chain へ流すための最小メニュー。
+    /// アクセサリアプリなので普段は表示されないが、ウィンドウがキーのとき
+    /// キー装飾がここを経由してフィールドエディタに届く。
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+
+        let appItem = NSMenuItem()
+        mainMenu.addItem(appItem)
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: L10n.t("Quit QRScope", "QRScopeを終了"),
+                        action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu
+
+        let editItem = NSMenuItem()
+        mainMenu.addItem(editItem)
+        let editMenu = NSMenu(title: L10n.t("Edit", "編集"))
+        editMenu.addItem(withTitle: L10n.t("Undo", "取り消す"), action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: L10n.t("Redo", "やり直す"), action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: L10n.t("Cut", "カット"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: L10n.t("Copy", "コピー"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: L10n.t("Paste", "ペースト"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: L10n.t("Select All", "すべてを選択"),
+                         action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editItem.submenu = editMenu
+
+        NSApp.mainMenu = mainMenu
+    }
+
     /// 起動時の権限状態を Application Support に記録する(トラブルシュート用)
     private func writeDiagnostics(hasAccess: Bool) {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -67,8 +101,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         overlay.hide()
         guard detectionEnabled else { return }
 
-        // 選択テキストが URL なら、QR検出とは独立に「QRを作成」チップを出す
-        let link = SelectionReader.selectedLink()
+        // 選択テキストが URL、または埋め込みリンクを右クリックしたときは、
+        // QR検出とは独立に「QRを作成」チップを出す
+        let link = SelectionReader.selectedLink(at: point)
 
         guard CGPreflightScreenCaptureAccess() else {
             if let link {
