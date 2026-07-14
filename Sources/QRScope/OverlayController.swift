@@ -37,15 +37,19 @@ final class OverlayController {
         // 隠れなくなる。
         panel.level = .screenSaver
 
-        // コンテキストメニューはカーソルから下方向に開くため、既定でカーソルの
-        // すぐ上に出す。上側の余白が足りなければ下側へフリップする。
-        let gap: CGFloat = 10
-        var origin = CGPoint(x: point.x + 12, y: point.y + gap)
+        // コンテキストメニューはカーソルの右側(画面右端付近では左側)に開く。
+        // 以前はチップをカーソルの上に出して縦方向にメニューを避けていたが、
+        // 画面下端ではメニューが上向きに反転するため、上に出したチップが
+        // メニューを隠してしまう。メニューの高さは分からず縦方向では確実に
+        // 避けられないので、メニューが開く側と反対の「横」にチップを出す。
+        // こうすれば上下どちらに反転してもメニューの横幅に重ならない。
+        let gap: CGFloat = 12
+        var origin = CGPoint(x: point.x - gap - size.width, y: point.y - size.height / 2)
         if let screen = NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) }) ?? NSScreen.main {
             let visible = screen.visibleFrame
-            if origin.y + size.height > visible.maxY - 8 {
-                origin.y = point.y - gap - size.height  // 上に収まらないので下側へ
-            }
+            // カーソルが右端に近いとメニューは左へ開くので、チップは右に出す
+            let menuOpensLeft = point.x + 220 > visible.maxX
+            origin.x = menuOpensLeft ? point.x + gap : point.x - gap - size.width
             origin.x = max(visible.minX + 8, min(origin.x, visible.maxX - size.width - 8))
             origin.y = max(visible.minY + 8, min(origin.y, visible.maxY - size.height - 8))
         }
